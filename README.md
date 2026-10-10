@@ -1,107 +1,55 @@
-# mytoken
+# Hermes — 一键部署的 24 小时在线 AI 私人助理
 
-大模型 Token 代理中转 SaaS：对外兼容 **OpenAI** 与 **Anthropic**，对内渠道路由、计费；提供用户控制台与管理后台。
+> 服务器全托管、开通即送 Token，**加 QQ 群领兑换券，最低 29 元兑换 Hermes 7 天使用权限**。
 
-## 技术栈
+[English](./README.en.md) | 中文
 
-- API：Python 3.12 + Sanic
-- 网关 / 前端：OpenResty（用户控制台 + 管理后台静态页 + 反代 API）
-- 数据：MySQL 8 + Redis；**手写 SQL（asyncmy 连接池）**，无 ORM
-- 上游 HTTP：httpx 长生命周期连接池
-- 前端：多页原生 HTML + 本地 Bootstrap + 原生 JS（无 TypeScript / Vite）
-  - 用户控制台（PC）：`front/` → `/`
-  - 用户控制台（手机 WAP）：`front-wap/` → `/m/`（两端 UA 互跳）
-  - 管理后台：`admin/` → `/admin/`
+## Hermes 是什么
 
-## 快速开始（本地 API 开发）
+不是一个冷冰冰的 API，而是一个**帮你把活干完的智能体**：
 
-```bash
-cp .env.example .env
-cd deploy && docker compose up -d mysql redis
-cd ..
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements-dev.txt
+- 你说目标，它拆步骤、出初稿、改到能交差
+- 写文章 · 写小说 · 写代码 · 毕业设计 · 做 PPT · 整理文档，样样精通
+- 人设、模型、技能、插件（MCP）全部可配置，越用越贴你的习惯
+- 支持飞书接入，任务丢进群里就能干
 
-# 建表 + 管理员种子
-PYTHONPATH=. python -m server.bootstrap
+## 为什么叫「一键部署」
 
-# 仅 API（不含静态页）
-# 对外（含宿主机/LAN）请用单进程、勿加 --dev：auto-reload 易与残留进程抢绑 :8000，导致 curl 52 Empty reply
-PYTHONPATH=. sanic server.app:app --host 0.0.0.0 --port 8000 --single-process
-# 仅本机热重载开发可加 --dev；启动前先清空端口：fuser -k 8000/tcp
-```
+| 你以为要做的 | 实际上 |
+|---|---|
+| 买服务器、装环境、配模型 | **不用**，Hermes 是托管实例，服务器由平台提供 |
+| 充值、估算 Token 成本 | **开通即送 Token**，套餐内含大额使用额度 |
+| 写 prompt、调参数 | **零配置**，控制台选好人设和模型，直接开聊 |
 
-健康检查：`curl http://127.0.0.1:8000/healthz` → `{"status":"ok"}`  
-默认管理员由 bootstrap 用 `.env` 的 `ADMIN_USERNAME` / `ADMIN_PASSWORD` 写入数据库（示例 `admin` / `admin123`）；之后登录与改密只认库里的 `is_admin` 用户。
+深夜赶工、周末加班，你的助理 24 小时在线。
 
-用户控制台与管理后台请用下方 Docker 全栈（OpenResty 托管 `front/`、`admin/`）。
+## 🎁 兑换码活动
 
-## 对外协议
+1. 加入 QQ 群：**833984139**
+2. 群内领取兑换券（**最低 29 元**档）
+3. 控制台输入兑换码 → 立刻解锁 **Hermes 7 天使用权限**
+4. 满意再续，不满意到期即止，零沉没成本
 
-| 协议 | 路径 | 鉴权 |
-|------|------|------|
-| OpenAI | `POST /v1/chat/completions` | `Authorization: Bearer <sk-mt-...>` |
-| OpenAI | `GET /v1/models` | 可选 |
-| Anthropic | `POST /v1/messages` | `x-api-key: <sk-mt-...>` |
+咨询也可以邮件联系：angelababy88@proton.me
 
-终端用户**只指定 `model`**。运营在管理后台「模型」页配置：该模型对应的上游地址、密钥与计价；每个模型一条有效接入。底层表对用户和管理文案都不叫「渠道」。
+## 想自己写代码？同账户还有 Token API
+
+同一账户提供兼容 OpenAI / Anthropic 协议的 API，Cursor、Claude Code、Cherry Studio 换个 Base URL 就能跑：
 
 ```bash
-curl http://127.0.0.1:8000/v1/chat/completions \
-  -H "Authorization: Bearer sk-mt-..." \
-  -H "Content-Type: application/json" \
-  -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"hi"}]}'
+# Claude Code 为例
+export ANTHROPIC_BASE_URL=https://ai.ttshuli.com
+export ANTHROPIC_AUTH_KEY=sk-你的Key
+claude
 ```
 
-### 用户控制台
+OpenAI 协议客户端填 `https://ai.ttshuli.com/v1`，其余照旧。详见仓库内历史文档与站内接入说明。
 
-公开落地页：`/`（手机自动跳 `/m/`）。登录后控制台：`/overview.html`（WAP：`/m/overview.html`）。  
-公开教程（SEO 静态页）：`/articles/`（WAP：`/m/articles/`）；源稿在 `content/articles/*.md`，改完后执行 `python scripts/build_articles.py` 再提交生成的 HTML。  
-用户 API：`/api/user/*`，响应 `{code,message,data}`；鉴权 `Authorization: Bearer <user-token>`（与管理端 token 隔离，PC/WAP 共用）。  
-充值：可创建待支付订单；管理员仍可在后台手工加款。
+## 链接
 
-### 管理后台
+- 控制台 / 开通 Hermes：https://ai.ttshuli.com
+- Token 套餐：https://ai.ttshuli.com/plans.html
 
-仪表盘 / 用户 / 模型 / 调用日志。  
-管理 API：`/api/admin/*`，响应 `{code,message,data}`，分页 `page` + `page_size`。
+---
 
-## 目录结构
-
-```
-server/            # 服务端包根（Sanic API + 领域逻辑）
-  app.py           # Sanic 入口
-  bootstrap.py     # 建表与种子
-  blueprints/      # HTTP 路由（含 user_api / admin_api）
-  services/        # 代理流水线等
-  auth/            # 密码、API Key
-  billing/         # 预扣 / 结算
-  channels/        # 路由与熔断
-  infra/           # 配置、连接池、schema.sql
-  proto/           # Canonical + OpenAI/Anthropic codec
-  providers/       # 上游适配器
-front/             # 用户控制台 PC（OpenResty → /）
-front-wap/         # 用户控制台手机端（OpenResty → /m/）
-content/articles/  # SEO 教程 MD 源稿（build → front/articles + front-wap/articles）
-admin/             # 管理后台（OpenResty → /admin/）
-deploy/
-  Dockerfile       # API 镜像
-  docker-compose.yml
-  openresty/nginx.conf
-tests/
-```
-
-## Docker（API + OpenResty）
-
-```bash
-cp .env.example .env
-cd deploy && docker compose up -d --build
-```
-
-- 入口：OpenResty（`:80` / `:443`）
-  - `/` → 公开落地页；其余用户页同属 `front/`（概览 `/overview.html`）
-  - `/admin/*` → 管理后台静态页
-  - `/v1/*`、`/api/*`、`/healthz` 等 → 反代到内部 `api:8000`
-- 公开站 / 控制台：https://ai.ttshuli.com/ 、https://ai.ttshuli.com/overview.html （或 `/login.html`）
-- 管理后台：https://ai.ttshuli.com/admin/login.html
-- 对外 Base URL：OpenAI `https://<域名>/v1`，Anthropic `https://<域名>`（与控制台同域，靠路径分流）
-- API 容器不对外暴露端口，只走 OpenResty
+*有问题开 issue，或加 QQ 群 833984139 直接聊。*
