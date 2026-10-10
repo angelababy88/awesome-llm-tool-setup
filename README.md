@@ -1,65 +1,107 @@
-# 把 Cursor / Claude Code / Cherry Studio 接到 OpenAI·Anthropic 兼容 API 的踩坑笔记
+# mytoken
 
-> 国内部署中转、协议双兼容（OpenAI / Anthropic）、注册拿 Key 改 Base URL 即用。
-> 本文以 [天天AI](https://ai.ttshuli.com) 为例，任何兼容协议的服务同理。
+大模型 Token 代理中转 SaaS：对外兼容 **OpenAI** 与 **Anthropic**，对内渠道路由、计费；提供用户控制台与管理后台。
 
-## 为什么需要中转
+## 技术栈
 
-直接用官方 API 的常见问题：网络不通、支付不便、不同工具各管一套 Key。
-协议兼容的中转只做一件事：**客户端不用改，换个 Base URL 就能跑**。
+- API：Python 3.12 + Sanic
+- 网关 / 前端：OpenResty（用户控制台 + 管理后台静态页 + 反代 API）
+- 数据：MySQL 8 + Redis；**手写 SQL（asyncmy 连接池）**，无 ORM
+- 上游 HTTP：httpx 长生命周期连接池
+- 前端：多页原生 HTML + 本地 Bootstrap + 原生 JS（无 TypeScript / Vite）
+  - 用户控制台（PC）：`front/` → `/`
+  - 用户控制台（手机 WAP）：`front-wap/` → `/m/`（两端 UA 互跳）
+  - 管理后台：`admin/` → `/admin/`
 
-## 三步接入（通用）
+## 快速开始（本地 API 开发）
 
-1. **注册拿 Key** —— 在控制台注册，生成 API Key。
-2. **改 Base URL** —— OpenAI 系填 `https://ai.ttshuli.com/v1`；Anthropic 系填 `https://ai.ttshuli.com`。
-3. **指定模型** —— 按控制台模型列表填 `model`，客户端里只需要选名字。
-
-## 各工具配置速查
-
-### Cherry Studio
-设置 → 模型服务 → 添加 OpenAI 兼容供应商：
-- API Host：`https://ai.ttshuli.com`
-- API Key：控制台生成的 Key
-- 模型：手动添加控制台列表里的模型名
-
-### Claude Code
-环境变量方式接入：
 ```bash
-export ANTHROPIC_BASE_URL=https://ai.ttshuli.com
-export ANTHROPIC_AUTH_KEY=sk-你的Key
-claude
+cp .env.example .env
+cd deploy && docker compose up -d mysql redis
+cd ..
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements-dev.txt
+
+# 建表 + 管理员种子
+PYTHONPATH=. python -m server.bootstrap
+
+# 仅 API（不含静态页）
+# 对外（含宿主机/LAN）请用单进程、勿加 --dev：auto-reload 易与残留进程抢绑 :8000，导致 curl 52 Empty reply
+PYTHONPATH=. sanic server.app:app --host 0.0.0.0 --port 8000 --single-process
+# 仅本机热重载开发可加 --dev；启动前先清空端口：fuser -k 8000/tcp
 ```
 
-### Cursor
-Settings → Models：
-- OpenAI API Key 填控制台 Key
-- Override OpenAI Base URL：`https://ai.ttshuli.com/v1`
-- 勾选模型后 Verify
+健康检查：`curl http://127.0.0.1:8000/healthz` → `{"status":"ok"}`  
+默认管理员由 bootstrap 用 `.env` 的 `ADMIN_USERNAME` / `ADMIN_PASSWORD` 写入数据库（示例 `admin` / `admin123`）；之后登录与改密只认库里的 `is_admin` 用户。
 
-### Cline / Kilo Code / OpenCode
-凡是「自定义 OpenAI / Anthropic Base URL」的客户端：
-- Base URL：`https://ai.ttshuli.com/v1`（OpenAI 协议）
-- API Key：控制台生成
-- Model：控制台模型列表任选
+用户控制台与管理后台请用下方 Docker 全栈（OpenResty 托管 `front/`、`admin/`）。
 
-## 常见坑
+## 对外协议
 
-| 现象 | 原因 | 处理 |
-|---|---|---|
-| 401 | Key 填错或前面带空格 | 重新复制，注意别带 `Bearer` 前缀 |
-| 404 | Base URL 少了 `/v1` | OpenAI 协议必须带 `/v1`，Anthropic 协议不带 |
-| 模型不存在 | `model` 名字手打 | 一律从控制台模型列表复制 |
-| 计费不动 | 客户端缓存 | 看控制台「用量明细」为准 |
+| 协议 | 路径 | 鉴权 |
+|------|------|------|
+| OpenAI | `POST /v1/chat/completions` | `Authorization: Bearer <sk-mt-...>` |
+| OpenAI | `GET /v1/models` | 可选 |
+| Anthropic | `POST /v1/messages` | `x-api-key: <sk-mt-...>` |
 
-## 进阶：不只是 API
+终端用户**只指定 `model`**。运营在管理后台「模型」页配置：该模型对应的上游地址、密钥与计价；每个模型一条有效接入。底层表对用户和管理文案都不叫「渠道」。
 
-同账户下还有 **Hermes 智能体面板**：可托管一个 24 小时在线的助理实例，配人设、技能、飞书接入，适合「丢任务给它干」而不是「自己写 prompt 调 API」的用法。控制台按需开通即可。
+```bash
+curl http://127.0.0.1:8000/v1/chat/completions \
+  -H "Authorization: Bearer sk-mt-..." \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"hi"}]}'
+```
 
-## 链接
+### 用户控制台
 
-- 控制台 / 注册：https://ai.ttshuli.com
-- 接入文档（站内有完整版）：https://ai.ttshuli.com/docs.html
+公开落地页：`/`（手机自动跳 `/m/`）。登录后控制台：`/overview.html`（WAP：`/m/overview.html`）。  
+公开教程（SEO 静态页）：`/articles/`（WAP：`/m/articles/`）；源稿在 `content/articles/*.md`，改完后执行 `python scripts/build_articles.py` 再提交生成的 HTML。  
+用户 API：`/api/user/*`，响应 `{code,message,data}`；鉴权 `Authorization: Bearer <user-token>`（与管理端 token 隔离，PC/WAP 共用）。  
+充值：可创建待支付订单；管理员仍可在后台手工加款。
 
----
+### 管理后台
 
-*觉得有用就点个 Star，配置有坑欢迎 issue 交流。*
+仪表盘 / 用户 / 模型 / 调用日志。  
+管理 API：`/api/admin/*`，响应 `{code,message,data}`，分页 `page` + `page_size`。
+
+## 目录结构
+
+```
+server/            # 服务端包根（Sanic API + 领域逻辑）
+  app.py           # Sanic 入口
+  bootstrap.py     # 建表与种子
+  blueprints/      # HTTP 路由（含 user_api / admin_api）
+  services/        # 代理流水线等
+  auth/            # 密码、API Key
+  billing/         # 预扣 / 结算
+  channels/        # 路由与熔断
+  infra/           # 配置、连接池、schema.sql
+  proto/           # Canonical + OpenAI/Anthropic codec
+  providers/       # 上游适配器
+front/             # 用户控制台 PC（OpenResty → /）
+front-wap/         # 用户控制台手机端（OpenResty → /m/）
+content/articles/  # SEO 教程 MD 源稿（build → front/articles + front-wap/articles）
+admin/             # 管理后台（OpenResty → /admin/）
+deploy/
+  Dockerfile       # API 镜像
+  docker-compose.yml
+  openresty/nginx.conf
+tests/
+```
+
+## Docker（API + OpenResty）
+
+```bash
+cp .env.example .env
+cd deploy && docker compose up -d --build
+```
+
+- 入口：OpenResty（`:80` / `:443`）
+  - `/` → 公开落地页；其余用户页同属 `front/`（概览 `/overview.html`）
+  - `/admin/*` → 管理后台静态页
+  - `/v1/*`、`/api/*`、`/healthz` 等 → 反代到内部 `api:8000`
+- 公开站 / 控制台：https://ai.ttshuli.com/ 、https://ai.ttshuli.com/overview.html （或 `/login.html`）
+- 管理后台：https://ai.ttshuli.com/admin/login.html
+- 对外 Base URL：OpenAI `https://<域名>/v1`，Anthropic `https://<域名>`（与控制台同域，靠路径分流）
+- API 容器不对外暴露端口，只走 OpenResty
