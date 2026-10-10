@@ -1,6 +1,7 @@
 # Hermes — 一键部署的 24 小时在线 AI 私人助理
 
 > 服务器全托管、开通即送 Token，**加 QQ 群领兑换券，最低 29 元兑换 Hermes 7 天使用权限**。
+> Claude Code / Cursor / Cherry Studio 免官方订阅、免海外支付，国内注册即用；同账户附赠兼容 OpenAI / Anthropic 协议的 Token API。
 
 [English](./README.en.md) | 中文
 
@@ -53,6 +54,23 @@
 ```
 
 保存后进入项目目录跑 `claude` 即可，模型全指到 `auto`，系统自动选最优。OpenAI 协议客户端（Cursor / Cherry Studio 等）Base URL 填 `https://ai.ttshuli.com/v1`，其余照旧。保姆级教程：https://ai.ttshuli.com/articles/claude-code-install.html
+
+## FAQ
+
+**Q：Claude Code 一定要官方订阅 / 浏览器登录吗？**
+不用。写好 `~/.claude/settings.json`（见上文配置）指向兼容 API，启动时跳过官方登录即可，国内可直接注册使用。
+
+**Q：Cursor 怎么换 API 供应商？**
+Settings → Models → 填入 API Key，Override OpenAI Base URL 填 `https://ai.ttshuli.com/v1`，模型选 `auto`。
+
+**Q：Cherry Studio 怎么接入？**
+设置 → 模型服务 → 添加 OpenAI 兼容供应商：API Host 填 `https://ai.ttshuli.com`，模型手动添加即可。
+
+**Q：Hermes 要自己买服务器搭环境吗？**
+不用。Hermes 是托管实例，一键开通，服务器、环境、初始 Token 全部包含，控制台里直接用。
+
+**Q：兑换码怎么用？**
+加 QQ 群 833984139 领兑换券（最低 29 元），控制台输入兑换码，立即解锁 Hermes 7 天使用权限。
 
 ## 链接
 
