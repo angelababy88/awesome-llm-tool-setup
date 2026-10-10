@@ -34,16 +34,25 @@
 
 ## 想自己写代码？同账户还有 Token API
 
-同一账户提供兼容 OpenAI / Anthropic 协议的 API，Cursor、Claude Code、Cherry Studio 换个 Base URL 就能跑：
+同一账户提供兼容 OpenAI / Anthropic 协议的 API，Cursor、Claude Code、Cherry Studio 换个配置就能跑。
 
-```bash
-# Claude Code 为例
-export ANTHROPIC_BASE_URL=https://ai.ttshuli.com
-export ANTHROPIC_AUTH_KEY=sk-你的Key
-claude
+以 Claude Code 为例，新建 `~/.claude/settings.json`，粘贴整段（密钥在控制台生成，替换 `sk-mt-...`）：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://ai.ttshuli.com",
+    "ANTHROPIC_API_KEY": "sk-mt-...",
+    "ANTHROPIC_MODEL": "auto",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "auto",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "auto",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "auto",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "auto"
+  }
+}
 ```
 
-OpenAI 协议客户端填 `https://ai.ttshuli.com/v1`，其余照旧。详见仓库内历史文档与站内接入说明。
+保存后进入项目目录跑 `claude` 即可，模型全指到 `auto`，系统自动选最优。OpenAI 协议客户端（Cursor / Cherry Studio 等）Base URL 填 `https://ai.ttshuli.com/v1`，其余照旧。保姆级教程：https://ai.ttshuli.com/articles/claude-code-install.html
 
 ## 链接
 
