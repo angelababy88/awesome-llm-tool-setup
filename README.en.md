@@ -1,6 +1,7 @@
 # Hermes — Your 24/7 AI Assistant, Deployed in One Click
 
 > Fully hosted, tokens included on signup. **Join the QQ group to grab a redeem voucher — starting at ¥29 (~$4) for 7 days of Hermes access.**
+> Claude Code / Cursor / Cherry Studio without an official subscription or overseas payment — sign up and go; an OpenAI / Anthropic compatible token API is bundled with the same account.
 
 English | [中文](./README.md)
 
@@ -53,6 +54,23 @@ Claude Code example — create `~/.claude/settings.json` and paste (generate you
 ```
 
 Save, `cd` into your project, and run `claude`. All models point to `auto` so the system picks the best one. For OpenAI-protocol clients (Cursor / Cherry Studio etc.), use base URL `https://ai.ttshuli.com/v1`. Full walkthrough: https://ai.ttshuli.com/articles/claude-code-install.en.html
+
+## FAQ
+
+**Q: Does Claude Code require an official subscription or browser login?**
+No. Write `~/.claude/settings.json` (see config above) pointing at a compatible API and skip the official login entirely.
+
+**Q: How do I switch Cursor to a different API provider?**
+Settings → Models → enter your API key, set Override OpenAI Base URL to `https://ai.ttshuli.com/v1`, pick model `auto`.
+
+**Q: And Cherry Studio?**
+Settings → Model Services → add an OpenAI-compatible provider with host `https://ai.ttshuli.com`, then add models manually.
+
+**Q: Do I need my own server for Hermes?**
+No. Hermes is a hosted instance — one click to deploy, server environment and starter tokens all included.
+
+**Q: How do redeem codes work?**
+Join QQ group 833984139 to claim a voucher (from ¥29), enter the code in the dashboard, and unlock 7 days of Hermes access instantly.
 
 ## Links
 
