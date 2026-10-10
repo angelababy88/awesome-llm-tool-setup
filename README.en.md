@@ -34,16 +34,25 @@ Questions? Email angelababy88@proton.me
 
 ## Prefer to code against an API?
 
-The same account also gives you an OpenAI / Anthropic compatible API — point Cursor, Claude Code, or Cherry Studio at a new base URL and go:
+The same account also gives you an OpenAI / Anthropic compatible API — point Cursor, Claude Code, or Cherry Studio at a new config and go.
 
-```bash
-# Claude Code example
-export ANTHROPIC_BASE_URL=https://ai.ttshuli.com
-export ANTHROPIC_AUTH_KEY=sk-your-key
-claude
+Claude Code example — create `~/.claude/settings.json` and paste (generate your key in the dashboard, replace `sk-mt-...`):
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://ai.ttshuli.com",
+    "ANTHROPIC_API_KEY": "sk-mt-...",
+    "ANTHROPIC_MODEL": "auto",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "auto",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "auto",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "auto",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "auto"
+  }
+}
 ```
 
-For OpenAI-protocol clients, use `https://ai.ttshuli.com/v1`. Details in the dashboard docs.
+Save, `cd` into your project, and run `claude`. All models point to `auto` so the system picks the best one. For OpenAI-protocol clients (Cursor / Cherry Studio etc.), use base URL `https://ai.ttshuli.com/v1`. Full walkthrough: https://ai.ttshuli.com/articles/claude-code-install.en.html
 
 ## Links
 
