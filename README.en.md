@@ -72,6 +72,10 @@ No. Hermes is a hosted instance — one click to deploy, server environment and 
 **Q: How do redeem codes work?**
 Join QQ group 833984139 to claim a voucher (from ¥29), enter the code in the dashboard, and unlock 7 days of Hermes access instantly.
 
+## In-depth tutorials (docs/)
+
+- [Claude Code with a third-party compatible API](./docs/claude-code.en.md) ([中文](./docs/claude-code.md)) — setup, troubleshooting, and the subscription trade-off
+
 ## Links
 
 - Dashboard / Get Hermes: https://ai.ttshuli.com
