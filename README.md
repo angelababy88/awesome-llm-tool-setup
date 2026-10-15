@@ -72,6 +72,10 @@ Settings → Models → 填入 API Key，Override OpenAI Base URL 填 `https://a
 **Q：兑换码怎么用？**
 加 QQ 群 833984139 领兑换券（最低 29 元），控制台输入兑换码，立即解锁 Hermes 7 天使用权限。
 
+## 深入教程（docs/）
+
+- [Claude Code 接入第三方兼容 API 完全指南](./docs/claude-code.md)（[English](./docs/claude-code.en.md)）—— 配置、报错速查、与官方订阅的关系
+
 ## 链接
 
 - 控制台 / 开通 Hermes：https://ai.ttshuli.com
