@@ -1,43 +1,30 @@
-# Hermes — Your 24/7 AI Assistant, Deployed in One Click
+# Claude Code / Cursor in China: compatible API setup
 
-> Fully hosted, tokens included on signup. **Join the QQ group to grab a redeem voucher — starting at ¥29 (~$4) for 7 days of Hermes access.**
-> Claude Code / Cursor / Cherry Studio without an official subscription or overseas payment — sign up and go; an OpenAI / Anthropic compatible token API is bundled with the same account.
+> Official subscriptions lock you to their client; overseas cards are painful; direct connections drop. Point your tools at any **OpenAI / Anthropic compatible** endpoint and pay per token.
+> Examples use [天天AI](https://ai.ttshuli.com): sign up, pay-as-you-go tokens, usage visible. Hermes (hosted agent) is optional on the same account.
 
 English | [中文](./README.md)
 
-## What is Hermes?
+## What this repo is
 
-Not a bare API — a **hands-on agent that gets work done**:
+Working setup guides (Claude Code / Cursor / Cherry Studio), not a product brochure. Swap the host and key if you use another compatible provider.
 
-- State your goal; it breaks it down, drafts, and iterates until it's deliverable
-- Writing · fiction · coding · coursework · slides · document cleanup — it covers them all
-- Fully configurable: persona, model, skills, plugins (MCP) — it adapts to how you work
-- Feishu (Lark) integration: drop tasks into a group chat and it gets on with it
+- Dashboard: https://ai.ttshuli.com
+- Token plans: https://ai.ttshuli.com/plans.html
+- Claude Code walkthrough: https://ai.ttshuli.com/articles/claude-code-install.en.html
+- Trial codes: join **QQ group 833984139** (codes are handed out in the group, not pasted here)
 
-## Why "one-click deployment"?
+## 30-second cheat sheet
 
-| What you'd expect to do | Reality |
-|---|---|
-| Rent a server, set up the env, configure models | **Not needed** — Hermes is a hosted instance; the server side is handled for you |
-| Top up and estimate token costs | **Tokens included** — plans come with a generous usage allowance |
-| Craft prompts and tune parameters | **Zero config** — pick a persona and model in the dashboard, and start talking |
+| Client | Base URL | Model |
+|---|---|---|
+| Claude Code (Anthropic protocol) | `https://ai.ttshuli.com` (**no** `/v1`) | `auto` |
+| Cursor / Cherry Studio / Cline (OpenAI protocol) | `https://ai.ttshuli.com/v1` (**with** `/v1`) | `auto` |
+| API Key | from the dashboard, looks like `sk-mt-...` | |
 
-Late-night deadlines, weekend crunch — your assistant is online 24/7.
+## Claude Code
 
-## 🎁 Redeem-code campaign
-
-1. Join the QQ group: **833984139**
-2. Claim a voucher in the group (**starts at ¥29**, roughly $4)
-3. Enter the redeem code in the dashboard → unlock **7 days of Hermes access**
-4. Subscribe only if you like it — no sunk cost
-
-Questions? Email angelababy88@proton.me
-
-## Prefer to code against an API?
-
-The same account also gives you an OpenAI / Anthropic compatible API — point Cursor, Claude Code, or Cherry Studio at a new config and go.
-
-Claude Code example — create `~/.claude/settings.json` and paste (generate your key in the dashboard, replace `sk-mt-...`):
+Create `~/.claude/settings.json` (Windows: `%USERPROFILE%\.claude\settings.json`):
 
 ```json
 {
@@ -47,40 +34,43 @@ Claude Code example — create `~/.claude/settings.json` and paste (generate you
     "ANTHROPIC_MODEL": "auto",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "auto",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "auto",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "auto",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL": "auto"
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "auto"
   }
 }
 ```
 
-Save, `cd` into your project, and run `claude`. All models point to `auto` so the system picks the best one. For OpenAI-protocol clients (Cursor / Cherry Studio etc.), use base URL `https://ai.ttshuli.com/v1`. Full walkthrough: https://ai.ttshuli.com/articles/claude-code-install.en.html
+Save, `cd` into a project, run `claude`, skip the official login. Full steps + error table: [docs/claude-code.en.md](./docs/claude-code.en.md).
+
+## Cursor
+
+Settings → Models → API key, Override OpenAI Base URL `https://ai.ttshuli.com/v1`, model `auto`. See [docs/cursor.en.md](./docs/cursor.en.md).
+
+## Cherry Studio
+
+Settings → Model Services → add an OpenAI-compatible provider, API Host `https://ai.ttshuli.com`, then add models. See [docs/cherry-studio.en.md](./docs/cherry-studio.en.md).
+
+## Pitfalls we actually hit
+
+- Prefer transparent per-token billing over “unlimited monthly”
+- Top up a little, soak for a couple of days, then add more
+- Prices below cost usually mean stolen/shared subscriptions
+- Do not append `/v1` on Anthropic clients; do not omit `/v1` on OpenAI clients
+
+## Hermes panel (optional)
+
+Same account, hosted instance: persona / skills / MCP / Feishu. **It spends the same token balance.** Not the focus of this repo.
 
 ## FAQ
 
-**Q: Does Claude Code require an official subscription or browser login?**
-No. Write `~/.claude/settings.json` (see config above) pointing at a compatible API and skip the official login entirely.
+**Q: Official subscription required?**  
+No. Compatible API + the config above. You can register from mainland China.
 
-**Q: How do I switch Cursor to a different API provider?**
-Settings → Models → enter your API key, set Override OpenAI Base URL to `https://ai.ttshuli.com/v1`, pick model `auto`.
+**Q: Redeem codes?**  
+QQ group 833984139, then Dashboard → Recharge → redeem.
 
-**Q: And Cherry Studio?**
-Settings → Model Services → add an OpenAI-compatible provider with host `https://ai.ttshuli.com`, then add models manually.
-
-**Q: Do I need my own server for Hermes?**
-No. Hermes is a hosted instance — one click to deploy, server environment and starter tokens all included.
-
-**Q: How do redeem codes work?**
-Join QQ group 833984139 to claim a voucher (from ¥29), enter the code in the dashboard, and unlock 7 days of Hermes access instantly.
-
-## In-depth tutorials (docs/)
-
-- [Claude Code with a third-party compatible API](./docs/claude-code.en.md) ([中文](./docs/claude-code.md)) — setup, troubleshooting, and the subscription trade-off
-
-## Links
-
-- Dashboard / Get Hermes: https://ai.ttshuli.com
-- Token plans: https://ai.ttshuli.com/plans.html
+**Q: Support?**  
+Issues here, QQ group 833984139, or angelababy88@proton.me
 
 ---
 
-*Open an issue, or join QQ group 833984139 to chat directly.*
+*Tutorials, not ads. If a step is wrong, open an issue.*
